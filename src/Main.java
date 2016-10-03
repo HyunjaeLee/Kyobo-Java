@@ -1,9 +1,4 @@
-import org.quartz.CronScheduleBuilder;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.Scheduler;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
+import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
 import java.io.File;
@@ -18,7 +13,10 @@ public class Main {
     private static final String OS = System.getProperty("os.name").toUpperCase();
     private static final String ARCH = System.getProperty("os.arch").toUpperCase();
 
-    public static final String PATH = path();
+    //For Jar
+    //public static final String PATH = path();
+    //For IDE
+    public static final String PATH = System.getProperty("user.dir");
     public static final String ACCOUNTPATH = PATH
             + File.separator
             + "account.txt";
@@ -57,7 +55,8 @@ public class Main {
         try(Stream<String> stream = Files.lines(Paths.get(Main.ACCOUNTPATH))){
             stream
                     .limit(2)
-                    .collect(Collectors.toList()).toArray(account);
+                    .collect(Collectors.toList())
+                    .toArray(account);
         }catch(IOException e){
             e.printStackTrace();
         }finally {
@@ -66,7 +65,7 @@ public class Main {
 
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         JobDetail job = JobBuilder
                 .newJob(Selenium.class)
@@ -74,12 +73,18 @@ public class Main {
         Trigger trigger = TriggerBuilder
                 .newTrigger()
                 .withSchedule(
-                        //CronScheduleBuilder.cronSchedule("0/10 * * * * ?"))
-                        CronScheduleBuilder.cronSchedule("0 0 0 * * ?"))
+                        CronScheduleBuilder.cronSchedule("0/10 * * * * ?"))
+                        //CronScheduleBuilder.cronSchedule("0 0 0 * * ?"))
                 .build();
-        Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-        scheduler.start();
-        scheduler.scheduleJob(job, trigger);
+
+        Scheduler scheduler = null;
+        try {
+            scheduler = StdSchedulerFactory.getDefaultScheduler();
+            scheduler.start();
+            scheduler.scheduleJob(job, trigger);
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
 
     }
 

@@ -13,10 +13,6 @@ import org.quartz.JobExecutionException;
 
 import java.util.List;
 
-/**
- * Created by Hyunjae on 9/12/16.
- */
-
 public class Selenium implements Job {
 
     private static final String ID = Main.ACCOUNT[0];
@@ -32,8 +28,10 @@ public class Selenium implements Job {
         WebDriver driver = new FirefoxDriver(capabilities);
 
         new Handler().handle(10, new Operation() {
+
             @Override
             public void run() {
+
                 ((JavascriptExecutor) driver).executeScript("window.location.href = '" + BASEURL + "'");
 
                 WebDriverWait wait =  new WebDriverWait(driver, 10);
@@ -48,20 +46,28 @@ public class Selenium implements Job {
                 btn_submit.click();
 
                 wait.until(ExpectedConditions.elementToBeClickable(By.linkText("로그아웃")));
+
             }
+
         }).handle(10, new Operation() {
+
             @Override
             public void run() {
+
                 WebDriverWait wait =  new WebDriverWait(driver, 10);
                 WebElement daily_stamp = wait.until(ExpectedConditions.elementToBeClickable(By.className("daily_stamp")));
                 daily_stamp.click();
+
             }
 
             @Override
             public void exception(TimeoutException e) {
+
                 super.exception(e);
                 ((JavascriptExecutor) driver).executeScript("window.location.href = '" + SUBURL + "'");
+
             }
+
         });
 
         driver.quit();
